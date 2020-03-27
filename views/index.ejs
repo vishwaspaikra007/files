@@ -1,0 +1,116 @@
+<html class="no-js">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.js" integrity="sha256-bd8XIKzrtyJ1O5Sh3Xp3GiuMIzWC42ZekvrMMD4GxRg=" crossorigin="anonymous"></script>
+    <title>upload file</title>
+    <style type="text/css">
+        * {
+            font: 600 16px system-ui, sans-serif;
+        }
+
+        form {
+            width: 320px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        form>legend {
+            font-size: 36px;
+            color: #3c5b6d;
+        }
+
+        form>input[type=file],
+        form>input[type=file]:before {
+            display: block;
+            width: 240px;
+            height: 50px;
+            margin: 0 auto;
+            line-height: 50px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        form>input[type=file] {
+            position: relative;
+        }
+
+        form>input[type=file]:before {
+            content: 'Choose a Photo';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            color: #3c5b6d;
+            font-size: 18px;
+            background: #fff;
+            border-radius: 3px;
+            border: 2px solid #3c5b6d;
+        }
+
+        form>button[type=submit] {
+            border-radius: 3px;
+            font-size: 18px;
+            display: block;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            background: #2a76cd;
+            width: 240px;
+            margin: 20px auto;
+            padding: 15px 20px;
+        } .selectedImg {
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        } .selectedImg > img {
+            object-fit: contain;
+            border: 2px solid;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="selectedImg"><img src="/defaults/dp.jpeg" alt="selected image"></div>
+    <form onsubmit="uploadIMG(this, event)" id="uploadIMG" method="POST" enctype="multipart/form-data">
+        <legend>Upload Avatar</legend>
+        <input type="file"  name="myImage" onchange="readURL(this)" accept="image/*" required>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+    <div class="status"></div>
+    <script>
+        function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            let selectedImg = document.querySelector('.selectedImg > img')
+            reader.onload = function (e) {
+                selectedImg.setAttribute('src', e.target.result)
+                    
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    function uploadIMG(ths, e) {
+        e.preventDefault();
+        let formData = new FormData()
+        formData.append('myImage',ths.elements.myImage.files[0])
+        axios.post('/upload',  formData, {
+            headers: {
+            'Content-Type': 'multipart/form-data'
+            }
+        }).then( dat => {
+            let status = document.querySelector('.status');
+            status.innerHTML = "upload successful";
+        }).catch(err => {
+            alert(err);
+        })
+        
+    }
+    </script>
+</body>
+
+</html>
