@@ -1,11 +1,13 @@
 const express = require('express')
-const index = require('./routes/index')
+const upload = require('./routes/upload')
+const fetchFiles = require('./routes/fetchFiles')
 const path = require('path')
 const app = express()
 
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, '/public')))
-app.use(index)
+app.use(upload)
+app.use(fetchFiles)
 
 const PORT = process.env.PORT || 3100
 app.listen(PORT, ()=> {

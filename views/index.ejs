@@ -9,6 +9,9 @@
     <style type="text/css">
         * {
             font: 600 16px system-ui, sans-serif;
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
         }
 
         form {
@@ -65,10 +68,38 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            margin-top: 20px;
         } .selectedImg > img {
             object-fit: contain;
             border: 2px solid;
             height: 100%;
+        } .uploadedImages {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        } .ele1, .ele2 {
+            height: 200px;
+            border: 2px solid black;
+            margin: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        } .ele1 {
+            width: 250px;
+        }  .ele2 {
+            width: 300px;
+        } .ele1 > img, .ele2 > img {
+            object-fit: contain;
+            height: 100%;
+        } .header {
+            text-align: center;
+            padding: 10px;
+            border-top: 2px solid black;
+            border-bottom: 2px solid black;
+            width: fit-content;
+            margin: auto;
         }
     </style>
 </head>
@@ -81,6 +112,8 @@
         <button type="submit" class="btn btn-primary">Upload</button>
     </form>
     <div class="status"></div>
+    <h2 class="header">Upload Images by random people</h2>
+    <div class="uploadedImages"></div>
     <script>
         function readURL(input) {
         if (input.files && input.files[0]) {
@@ -105,11 +138,40 @@
         }).then( dat => {
             let status = document.querySelector('.status');
             status.innerHTML = "upload successful";
+            fetchFiles();
         }).catch(err => {
             alert(err);
         })
         
     }
+
+    function fetchFiles() {
+        axios.get('/fetchFiles').then(res => {
+            let uploadedImages = res.data;
+            console.log(res.data)
+            let uploadedImagesDiv = document.querySelector('.uploadedImages');
+            uploadedImagesDiv.innerHTML = "";
+            uploadedImages.forEach((element, index) => {
+                if(index%2) {
+                    let ele1 = document.createElement('div');
+                    let img = document.createElement('img');
+                    ele1.classList.add('ele1');
+                    img.setAttribute('src', '/uploads/' + element);
+                    ele1.appendChild(img);
+                    uploadedImagesDiv.appendChild(ele1);
+                } else {
+                    let ele2 = document.createElement('div');
+                    let img = document.createElement('img');
+                    ele2.classList.add('ele2');
+                    img.setAttribute('src', '/uploads/' + element);
+                    ele2.appendChild(img);
+                    uploadedImagesDiv.appendChild(ele2);
+                }
+            });
+        })
+    }
+
+    fetchFiles();
     </script>
 </body>
 
