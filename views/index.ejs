@@ -69,30 +69,42 @@
             justify-content: center;
             align-items: center;
             margin-top: 20px;
+            background-image: url('/defaults/loading.svg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
         } .selectedImg > img {
             object-fit: contain;
             border: 2px solid;
             height: 100%;
+            opacity: 0;
+            transition: 500ms;
         } .uploadedImages {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
         } .ele1, .ele2 {
             height: 200px;
-            border: 2px solid black;
             margin: 15px;
             border-radius: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            background-image: url('/defaults/loading.svg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
         } .ele1 {
             width: 250px;
         }  .ele2 {
             width: 300px;
         } .ele1 > img, .ele2 > img {
-            object-fit: contain;
+            object-fit: cover;
             height: 100%;
+            width: 100%;
+            opacity: 0;
+            transition: 0.5s;
         } .header {
             text-align: center;
             padding: 10px;
@@ -100,16 +112,20 @@
             border-bottom: 2px solid black;
             width: fit-content;
             margin: auto;
+        } .disabled {
+            cursor: not-allowed;
+            opacity: 0.4;
         }
     </style>
 </head>
 
 <body>
-    <div class="selectedImg"><img src="/defaults/dp.jpeg" alt="selected image"></div>
+    <img src="/defaults/loading.svg" alt="" style="display: none;">
+    <div class="selectedImg"><img onload="show(this)" src="/defaults/dp.jpeg" alt="selected image"></div>
     <form onsubmit="uploadIMG(this, event)" id="uploadIMG" method="POST" enctype="multipart/form-data">
         <legend>Upload Avatar</legend>
         <input type="file"  name="myImage" onchange="readURL(this)" accept="image/*" required>
-        <button type="submit" class="btn btn-primary">Upload</button>
+        <button type="submit" name="submit" class="btn btn-primary">Upload</button>
     </form>
     <div class="status"></div>
     <h2 class="header">Upload Images by random people</h2>
@@ -129,6 +145,14 @@
     }
     function uploadIMG(ths, e) {
         e.preventDefault();
+
+        let status = document.querySelector('.status');
+        status.innerHTML = "Loading...";
+        ths.elements.submit.disabled = true;
+        ths.elements.submit.classList.add('disabled');
+        let selectedImg = document.querySelector('.selectedImg > img')
+        selectedImg.setAttribute('src', '/defaults/loading.svg');
+
         let formData = new FormData()
         formData.append('myImage',ths.elements.myImage.files[0])
         axios.post('/upload',  formData, {
@@ -136,9 +160,13 @@
             'Content-Type': 'multipart/form-data'
             }
         }).then( dat => {
-            let status = document.querySelector('.status');
-            status.innerHTML = "upload successful";
             fetchFiles();
+            status.innerHTML = dat.data.msg;
+            ths.elements.submit.disabled = false;
+            ths.elements.submit.classList.remove('disabled');
+            let selectedImg = document.querySelector('.selectedImg > img')
+            selectedImg.setAttribute('src', '/defaults/dp.jpeg');
+
         }).catch(err => {
             alert(err);
         })
@@ -148,7 +176,6 @@
     function fetchFiles() {
         axios.get('/fetchFiles').then(res => {
             let uploadedImages = res.data;
-            console.log(res.data)
             let uploadedImagesDiv = document.querySelector('.uploadedImages');
             uploadedImagesDiv.innerHTML = "";
             uploadedImages.forEach((element, index) => {
@@ -157,6 +184,8 @@
                     let img = document.createElement('img');
                     ele1.classList.add('ele1');
                     img.setAttribute('src', '/uploads/' + element);
+                    img.setAttribute('onload', 'show(this)');
+
                     ele1.appendChild(img);
                     uploadedImagesDiv.appendChild(ele1);
                 } else {
@@ -164,6 +193,8 @@
                     let img = document.createElement('img');
                     ele2.classList.add('ele2');
                     img.setAttribute('src', '/uploads/' + element);
+                    img.setAttribute('onload', 'show(this)');
+
                     ele2.appendChild(img);
                     uploadedImagesDiv.appendChild(ele2);
                 }
@@ -172,6 +203,9 @@
     }
 
     fetchFiles();
+    function show(ths) {
+        ths.style.opacity = "1";
+    }
     </script>
 </body>
 

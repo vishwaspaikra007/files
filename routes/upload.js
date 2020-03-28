@@ -43,7 +43,7 @@ const upload = multer({
     upload(req, res, (err) => {
         if(err){
           res.send({
-            msg: err
+            msg: err.message
           });
         } else {
           if(req.file == undefined){
